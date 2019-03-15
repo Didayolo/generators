@@ -38,32 +38,50 @@ class KLDivergenceLayer(Layer):
 
         return inputs
 
-def VAE(original_dim, intermediate_dim=256, latent_dim=2, epsilon_std=1.0):
+class VAE():
     """ Variational Autoencoder
     """
-    decoder = Sequential([
-        Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
-        Dense(original_dim, activation='sigmoid')
-    ])
+    def __init__(self, original_dim, intermediate_dim=256, latent_dim=2, epsilon_std=1.0):
+        decoder = Sequential([
+            Dense(intermediate_dim, input_dim=latent_dim, activation='relu'),
+            Dense(original_dim, activation='sigmoid')
+        ])
 
-    x = Input(shape=(original_dim,))
-    h = Dense(intermediate_dim, activation='relu')(x)
+        x = Input(shape=(original_dim,))
+        h = Dense(intermediate_dim, activation='relu')(x)
 
-    z_mu = Dense(latent_dim)(h)
-    z_log_var = Dense(latent_dim)(h)
+        z_mu = Dense(latent_dim)(h)
+        z_log_var = Dense(latent_dim)(h)
 
-    z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
-    z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
+        z_mu, z_log_var = KLDivergenceLayer()([z_mu, z_log_var])
+        z_sigma = Lambda(lambda t: K.exp(.5*t))(z_log_var)
 
-    eps = Input(tensor=K.random_normal(stddev=epsilon_std,
-                                       shape=(K.shape(x)[0], latent_dim)))
-    z_eps = Multiply()([z_sigma, eps])
-    z = Add()([z_mu, z_eps])
+        eps = Input(tensor=K.random_normal(stddev=epsilon_std,
+                                           shape=(K.shape(x)[0], latent_dim)))
+        z_eps = Multiply()([z_sigma, eps])
+        z = Add()([z_mu, z_eps])
 
-    x_pred = decoder(z)
+        x_pred = decoder(z)
 
-    vae = Model(inputs=[x, eps], outputs=x_pred)
-    encoder = Model(x, z_mu)
-    vae.compile(optimizer='rmsprop', loss=nll)
+        vae = Model(inputs=[x, eps], outputs=x_pred)
+        encoder = Model(x, z_mu)
+        vae.compile(optimizer='rmsprop', loss=nll)
 
-    return vae, decoder, encoder
+        self.original_dim = original_dim
+        self.latent_dim = latent_dim
+        self.vae = vae
+        self.encoder = encoder
+        self.decoder = decoder
+
+    def get_vae(self):
+        return self.vae
+
+    def get_encoder(self):
+        return self.encoder
+
+    def get_decoder(self):
+        return self.decoder
+
+    def sample(self, n=100):
+        randoms = np.array([np.random.normal(0, 1, self.latent_dim) for _ in range(n)])
+        return self.decoder.predict(randoms)
