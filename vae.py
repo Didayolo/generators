@@ -75,6 +75,6 @@ class VAE():
     def get_decoder(self):
         return self.decoder
 
-    def sample(self, n=100):
-        randoms = np.array([np.random.normal(0, 1, self.latent_dim) for _ in range(n)])
+    def sample(self, n=100, loc=0, scale=1):
+        randoms = np.array([np.random.normal(loc, scale, self.latent_dim) for _ in range(n)])
         return self.decoder.predict(randoms)
