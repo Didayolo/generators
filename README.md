@@ -14,10 +14,6 @@
 ### Set-up VAE benchmark
 
 ```
-git clone http://github.com/didayolo/autodata
-cd autodata
-pip install -r requirements.txt
-cd ..
 git clone http://github.com/didayolo/generators
 cd generators
 pip install -r requirements.txt
