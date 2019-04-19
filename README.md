@@ -2,7 +2,7 @@
 
 ![G](G_logo.png)
 
-* [Variational Autoencoder](vae.py)
+* [Variational Autoencoder](vae_benchmark.ipynb)
 * [Categorical Structural Agnostic Model](https://github.com/Didayolo/medi-chal/tree/master/code/generators)
 * [Wasserstein GAN](https://github.com/yknot/mimic_improved_wgan)
 * [Additive Noise Model](https://github.com/Didayolo/medi-chal/tree/master/code/generators)
